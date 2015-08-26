@@ -1,0 +1,12 @@
+.body
+{
+	position: absolute;
+}
+.about_icon .imgwap
+{
+	text-align: center;
+}
+.about_icon img {  
+width: 300px;
+height: auto;  
+} 
