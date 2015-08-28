@@ -28,40 +28,44 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    /****** 加载html文件 ******/
     NSString* htmlPath = [[NSBundle mainBundle] pathForResource:@"news" ofType:@"html"];
     NSString* appHtml = [NSString stringWithContentsOfFile:htmlPath encoding:NSUTF8StringEncoding error:nil];
     NSURL *baseURL = [NSURL fileURLWithPath:htmlPath];
     NSString *content = [appHtml stringByReplacingOccurrencesOfString:@"img src" withString:@"img esrc"];
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(<img[^>]+esrc=\")(\\S+)\"" options:0 error:nil];
-    //<!--separateStart-->
-    NSRegularExpression *regexSeparate = [NSRegularExpression regularExpressionWithPattern:@"(\\s)*(<div class=\"col-xs-12 col-md-12 content\" style=\"margin-top: 10px\">)([\\s\\S])*(</div>)(\\s)*(</div>)(\\s)*(</div>)" options:0 error:nil];
-    NSArray *matchStrings = [regexSeparate matchesInString:content options:0 range:NSMakeRange(0, content.length)];
-    if (matchStrings.count != 0)
-    {
-        for (NSTextCheckingResult *matc in matchStrings)
-        {
-            NSRange range = [matc range];
-            NSLog(@"%lu,%lu,%@",(unsigned long)range.location,(unsigned long)range.length,[content substringWithRange:range]);
-        }  
-    }
+    /******  ******/
 
+    /****** 正则替换img src 成 img esrc 让网页的图片不加载出来******/
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"(<img[^>]+esrc=\")(\\S+)\"" options:0 error:nil];
+ 
     NSString *result = [regex stringByReplacingMatchesInString:content options:0 range:NSMakeRange(0, content.length) withTemplate:@"<img esrc=\"$2\" onClick=\"javascript:onImageClick('$2')\""];
-    
+    /****** ******/
+
     [self.webView loadHTMLString:result baseURL:baseURL];
     
+    /****** 加载桥梁对象 ******/
     [WebViewJavascriptBridge enableLogging];
-    
+    /******  ******/
+
+    /****** 初始化 ******/
     _bridge = [WebViewJavascriptBridge bridgeForWebView:self.webView webViewDelegate:self handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"ObjC received message from JS: %@", data);
+        /****** js端逻辑 页面加载完成捕获完src里的链接 就通知OC进行图片下载******/
         [self downloadAllImagesInNative:data];
+        /****** ******/
         responseCallback(@"Response for message from ObjC");
     }];
-    
+    /****** ******/
+
+    /****** OC端注册一个方法 (测试)******/
     [_bridge registerHandler:@"testObjcCallback" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"testObjcCallback called: %@", data);
         responseCallback(@"Response from testObjcCallback");
     }];
-    [_bridge registerHandler:@"imageDidClicked" handler:^(id data, WVJBResponseCallback responseCallback) {
+    /****** ******/
+
+    /****** JS端得到当前DOM元素点击到了就通知OC ******/
+  [_bridge registerHandler:@"imageDidClicked" handler:^(id data, WVJBResponseCallback responseCallback) {
         NSInteger index = [[data objectForKey:@"index"] integerValue];
         NSInteger originX = [[data objectForKey:@"x"] floatValue];
         NSInteger originY = [[data objectForKey:@"y"] floatValue] + 64;
@@ -83,9 +87,9 @@
         }];
         mainPhotoGallery.imageViewArray = [[NSMutableArray alloc]initWithArray:@[tappedImageView]];
         [self presentViewController:mainPhotoGallery animated:NO completion:nil];
-
-      
          }];
+    /****** ******/
+
 }
 
 #pragma mark -- 下载全部图片
