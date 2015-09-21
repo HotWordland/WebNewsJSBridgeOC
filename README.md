@@ -3,7 +3,7 @@
 #演示
 
 #点击浏览放大
-![](https://github.com/HotWordland/WebNewsJSBridgeOC/blob/master/WebNewsJSBridgeOC.gif)
+![](https://github.com/HotWordland/WebNewsJSBridgeOC/blob/master/effect.png)
  
 #思路
 不加载html里的图片:替换HTML文本中默认的src 然后用SDWebImage将其url捕获进行缓存 等到缓存完后再进行替换Html。
