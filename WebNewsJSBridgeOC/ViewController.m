@@ -51,7 +51,7 @@
     _bridge = [WebViewJavascriptBridge bridgeForWebView:self.webView webViewDelegate:self handler:^(id data, WVJBResponseCallback responseCallback) {
         NSLog(@"ObjC received message from JS: %@", data);
         /****** js端逻辑 页面加载完成捕获完src里的链接 就通知OC进行图片下载******/
-        [self downloadAllImagesInNative:data];
+        [self downloadAllImagesInNative:[NSMutableArray arrayWithArray:data]];
         /****** ******/
         responseCallback(@"Response for message from ObjC");
     }];
@@ -93,7 +93,7 @@
 }
 
 #pragma mark -- 下载全部图片
--(void)downloadAllImagesInNative:(NSArray *)imageUrls{
+-(void)downloadAllImagesInNative:(NSMutableArray *)imageUrls{
     imgUrls = imageUrls;
     SDWebImageManager *manager = [SDWebImageManager sharedManager];
     //初始化一个置空元素数组
